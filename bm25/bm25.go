@@ -104,8 +104,17 @@ func (b *Bm25Base) IDF(term string) (float64, error) {
 		return 0.0, nil
 	}
 
-	if termFreq == 0 || termFreq >= b.corpusSize {
-		return 0, errors.New("invalid term frequency for term: " + term)
+	if termFreq == 0 {
+		// Term does not appear in any document, set IDF to 0
+		b.idfCache[term] = 0.0
+		return 0.0, nil
+	}
+
+	if termFreq == b.corpusSize {
+		// Term appears in all documents, set IDF to a small positive value
+		idf := math.Log(0.5 / (float64(termFreq) + 0.5)) // This will give a small negative value; you can return 0 instead
+		b.idfCache[term] = idf
+		return idf, nil
 	}
 
 	idf := math.Log((float64(b.corpusSize) - float64(termFreq) + 0.5) / (float64(termFreq) + 0.5))
