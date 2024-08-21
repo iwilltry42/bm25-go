@@ -1,3 +1,3 @@
-module lenaxia/bm25_golang
+module github.com/iwilltry42/bm25-go
 
-go 1.18
+go 1.23
