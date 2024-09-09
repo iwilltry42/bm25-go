@@ -59,7 +59,7 @@ func (o *BM25Okapi) GetScores(query []string) ([]float64, error) {
 
 		for i, docLen := range o.docLengths {
 			k := o.k1 * (1 - o.b + o.b*float64(docLen)/o.avgDocLen)
-			scores[i] += idf * (qFreq[i] / (qFreq[i] + k))
+			scores[i] += idf * ((qFreq[i] * (o.k1 + 1)) / (qFreq[i] + k))
 		}
 	}
 

@@ -58,8 +58,13 @@ func NewBM25Base(corpus []string, tokenizer func(string) []string, logger *log.L
 		base.docLengths = append(base.docLengths, len(tokens))
 		totalDocLen += len(tokens)
 
+		// Use a map or set to ensure each term is only counted once per document
+		seenTokens := make(map[string]struct{})
 		for _, token := range tokens {
-			base.termFreqs[token]++
+			if _, seen := seenTokens[token]; !seen {
+				base.termFreqs[token]++
+				seenTokens[token] = struct{}{}
+			}
 		}
 	}
 
@@ -117,7 +122,7 @@ func (b *Bm25Base) IDF(term string) (float64, error) {
 		return idf, nil
 	}
 
-	idf := math.Log((float64(b.corpusSize) - float64(termFreq) + 0.5) / (float64(termFreq) + 0.5))
+	idf := math.Log(((float64(b.corpusSize) - float64(termFreq) + 0.5) / (float64(termFreq) + 0.5)) + 1.0)
 	b.idfCache[term] = idf
 
 	if b.logger != nil {
